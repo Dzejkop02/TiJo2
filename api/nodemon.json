@@ -1,0 +1,7 @@
+{
+  "watch": ["src", "tsconfig.json"],
+  "ext": "ts,json",
+  "ignore": ["src/types/**/*.d.ts"],
+  "exec": "ts-node --project tsconfig.json src/index.ts",
+  "legacyWatch": true
+}
