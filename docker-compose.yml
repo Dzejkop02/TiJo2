@@ -1,7 +1,7 @@
 services:
   db:
     image: mysql:8.0
-    container_name: mysql_db
+    container_name: mysql_db_tijo
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
@@ -17,7 +17,7 @@ services:
     build:
       context: ./api
       target: builder
-    container_name: express_server
+    container_name: express_server_tijo
     restart: always
     depends_on:
       - db
@@ -40,7 +40,7 @@ services:
     build:
       context: ./app
       target: build
-    container_name: react_client
+    container_name: react_client_tijo
     restart: always
     depends_on:
       - server
@@ -53,7 +53,7 @@ services:
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
-    container_name: phpmyadmin_panel
+    container_name: phpmyadmin_panel_tijo
     restart: always
     ports:
       - "8080:80"
