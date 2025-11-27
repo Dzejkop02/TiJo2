@@ -14,7 +14,7 @@ import {moduleRouter} from "./routers/module.router";
 import {columnRouter} from "./routers/column.router";
 import {taskRouter} from "./routers/task.router";
 
-const app = express();
+export const app = express();
 const port = Number(process.env.NODE_PORT || 3001);
 
 pool.getConnection()
@@ -52,6 +52,8 @@ app.get('/api', (req, res) => {
 
 app.use(handleError);
 
-app.listen(port, '0.0.0.0', () => {
-    console.log(`Backend listening on http://localhost:${port}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+    app.listen(port, '0.0.0.0', () => {
+        console.log(`Backend listening on http://localhost:${port}`);
+    });
+}
