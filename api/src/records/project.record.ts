@@ -19,6 +19,10 @@ export class ProjectRecord implements ProjectEntity {
             throw new ValidationError('Nazwa projektu musi mieć od 3 do 255 znaków.');
         }
 
+        if (obj.description && obj.description.length > 1000) {
+            throw new ValidationError('Opis projektu nie może przekraczać 1000 znaków.');
+        }
+
         this.id = obj.id ?? uuid();
         this.name = obj.name;
         this.description = obj.description ?? null;
