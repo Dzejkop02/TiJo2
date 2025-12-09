@@ -1,11 +1,11 @@
-import { Router } from 'express';
-import { z, ZodError } from 'zod';
-import { UserRecord } from '../records/user.record';
-import { ValidationError, UnauthorizedError } from '../utils/errors';
-import { comparePassword } from '../utils/password';
-import { createToken, deleteJwtCookie, generateToken } from '../utils/tokens';
-import { authenticateUser } from '../middleware/auth.middleware';
-import { TokenRecord } from '../records/token.record';
+import {Router} from 'express';
+import {z, ZodError} from 'zod';
+import {UserRecord} from '../records/user.record';
+import {ValidationError, UnauthorizedError} from '../utils/errors';
+import {comparePassword} from '../utils/password';
+import {createToken, deleteJwtCookie, generateToken} from '../utils/tokens';
+import {authenticateUser} from '../middleware/auth.middleware';
+import {TokenRecord} from '../records/token.record';
 
 export const authRouter = Router();
 
@@ -15,9 +15,45 @@ const loginSchema = z.object({
 });
 
 /**
- * LOGOWANIE
- * POST /auth/login
+ * @swagger
+ * /api/auth/login:
+ *   post:
+ *     summary: Logowanie użytkownika
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 default: user@example.com
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 default: password123
+ *     responses:
+ *       200:
+ *         description: Zalogowano pomyślnie
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok:
+ *                   type: boolean
+ *                 data:
+ *                   $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Błąd walidacji
  */
+
 authRouter.post('/login', async (req, res) => {
     try {
         const data = loginSchema.parse(req.body);
@@ -34,7 +70,7 @@ authRouter.post('/login', async (req, res) => {
 
         const personalTokenId = await generateToken(user);
 
-        const { accessToken, expiresIn } = createToken(personalTokenId);
+        const {accessToken, expiresIn} = createToken(personalTokenId);
 
         res.cookie('jwt', accessToken, {
             secure: false,
@@ -62,9 +98,18 @@ authRouter.post('/login', async (req, res) => {
 });
 
 /**
- * WYLOGOWANIE
- * GET /auth/logout
+ * @swagger
+ * /api/auth/logout:
+ *   get:
+ *     summary: Wylogowanie użytkownika
+ *     tags: [Auth]
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Wylogowano pomyślnie
  */
+
 authRouter.get('/logout', authenticateUser, async (req, res) => {
     try {
         const tokenId = req.tokenId as string;
@@ -75,7 +120,7 @@ authRouter.get('/logout', authenticateUser, async (req, res) => {
         }
 
         deleteJwtCookie(res);
-        res.status(200).json({ ok: true, message: 'Wylogowano pomyślnie.' });
+        res.status(200).json({ok: true, message: 'Wylogowano pomyślnie.'});
     } catch (error) {
         deleteJwtCookie(res);
         throw error;
@@ -83,9 +128,29 @@ authRouter.get('/logout', authenticateUser, async (req, res) => {
 });
 
 /**
- * SPRAWDZENIE SESJI
- * GET /auth/check
+ * @swagger
+ * /api/auth/check:
+ *   get:
+ *     summary: Sprawdzenie sesji
+ *     tags: [Auth]
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Zwraca dane użytkownika
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok:
+ *                   type: boolean
+ *                 data:
+ *                   $ref: '#/components/schemas/User'
+ *       401:
+ *         description: Brak autoryzacji
  */
+
 authRouter.get("/check", authenticateUser, async (req, res) => {
     const user = req.user as UserRecord;
 

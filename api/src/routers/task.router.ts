@@ -21,6 +21,35 @@ async function checkAccess(user: UserRecord, moduleId: string) {
     return module;
 }
 
+/**
+ * @swagger
+ * /api/modules/{moduleId}/tasks:
+ *   get:
+ *     summary: Pobierz zadania dla modułu
+ *     tags: [Tasks]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: moduleId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Lista zadań
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Task'
+ */
 taskRouter.get('/modules/:moduleId/tasks', async (req, res) => {
     const user = req.user as UserRecord;
     const { moduleId } = req.params;
@@ -31,8 +60,35 @@ taskRouter.get('/modules/:moduleId/tasks', async (req, res) => {
 });
 
 /**
- * POST /api/tasks
- * Tworzy nowe zadanie.
+ * @swagger
+ * /api/tasks:
+ *   post:
+ *     summary: Utwórz nowe zadanie
+ *     tags: [Tasks]
+ *     security:
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - title
+ *               - moduleId
+ *               - columnId
+ *             properties:
+ *               title:
+ *                 type: string
+ *               moduleId:
+ *                 type: string
+ *                 format: uuid
+ *               columnId:
+ *                 type: string
+ *                 format: uuid
+ *     responses:
+ *       200:
+ *         description: Utworzono zadanie
  */
 taskRouter.post('/tasks', async (req, res) => {
     const user = req.user as UserRecord;
@@ -75,6 +131,24 @@ taskRouter.post('/tasks', async (req, res) => {
     res.json({ ok: true, data: task });
 });
 
+/**
+ * @swagger
+ * /api/tasks/{id}:
+ *   delete:
+ *     summary: Usuwanie zadania
+ *     tags: [Tasks]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Usunięto zadanie
+ */
 taskRouter.delete('/tasks/:id', async (req, res) => {
     const user = req.user as UserRecord;
     const { id } = req.params;
@@ -87,6 +161,41 @@ taskRouter.delete('/tasks/:id', async (req, res) => {
     res.json({ ok: true, message: 'Usunięto zadanie' });
 });
 
+/**
+ * @swagger
+ * /api/tasks/reorder:
+ *   patch:
+ *     summary: Aktualizuj pozycje zadań (Drag & Drop)
+ *     tags: [Tasks]
+ *     security:
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - moduleId
+ *               - updates
+ *             properties:
+ *               moduleId:
+ *                 type: string
+ *               updates:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     columnId:
+ *                       type: string
+ *                     orderIndex:
+ *                       type: integer
+ *     responses:
+ *       200:
+ *         description: Zaktualizowano pozycje
+ */
 taskRouter.patch('/tasks/reorder', async (req, res) => {
     const user = req.user as UserRecord;
     const { updates, moduleId } = req.body;
@@ -99,8 +208,35 @@ taskRouter.patch('/tasks/reorder', async (req, res) => {
 });
 
 /**
- * PUT /api/tasks/:id
- * Aktualizuje tytuł, opis lub priorytet zadania.
+ * @swagger
+ * /api/tasks/{id}:
+ *   put:
+ *     summary: Aktualizacja zadania (tytuł, opis, priorytet)
+ *     tags: [Tasks]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               priority:
+ *                 type: string
+ *                 enum: [LOW, MEDIUM, HIGH, CRITICAL]
+ *     responses:
+ *       200:
+ *         description: Zaktualizowano zadanie
  */
 taskRouter.put('/tasks/:id', async (req, res) => {
     const user = req.user as UserRecord;

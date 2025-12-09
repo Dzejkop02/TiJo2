@@ -6,6 +6,8 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { handleError } from './utils/errors';
 import { pool } from './utils/db';
+import swaggerUi from 'swagger-ui-express';
+import swaggerJsdoc from 'swagger-jsdoc';
 
 import { authRouter } from './routers/auth.router';
 import { userRouter } from './routers/user.router';
@@ -26,6 +28,82 @@ pool.getConnection()
         console.error('Błąd połączenia z bazą danych:', err.message);
     });
 
+// --- KONFIGURACJA SWAGGERA ---
+const swaggerOptions = {
+    definition: {
+        openapi: '3.0.0',
+        info: {
+            title: 'Agile API',
+            version: '1.0.0',
+            description: 'API do zarządzania projektami, modułami i tablicami Kanban.',
+        },
+        servers: [
+            {
+                url: 'http://localhost:3001',
+                description: 'Serwer lokalny',
+            },
+        ],
+        components: {
+            securitySchemes: {
+                cookieAuth: {
+                    type: 'apiKey',
+                    in: 'cookie',
+                    name: 'jwt',
+                },
+            },
+            schemas: {
+                User: {
+                    type: 'object',
+                    properties: {
+                        id: { type: 'string', format: 'uuid' },
+                        email: { type: 'string', format: 'email' },
+                        fullName: { type: 'string' }
+                    }
+                },
+                Project: {
+                    type: 'object',
+                    properties: {
+                        id: { type: 'string', format: 'uuid' },
+                        name: { type: 'string' },
+                        description: { type: 'string' },
+                        owner_id: { type: 'string', format: 'uuid' },
+                        created_at: { type: 'string', format: 'date-time' }
+                    }
+                },
+                Module: {
+                    type: 'object',
+                    properties: {
+                        id: { type: 'string', format: 'uuid' },
+                        name: { type: 'string' },
+                        project_id: { type: 'string', format: 'uuid' }
+                    }
+                },
+                Task: {
+                    type: 'object',
+                    properties: {
+                        id: { type: 'string', format: 'uuid' },
+                        title: { type: 'string' },
+                        description: { type: 'string' },
+                        priority: {
+                            type: 'string',
+                            enum: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']
+                        },
+                        column_id: { type: 'string', format: 'uuid' }
+                    }
+                }
+            }
+        },
+        security: [
+            {
+                cookieAuth: [],
+            },
+        ],
+    },
+    apis: ['./src/routers/*.ts'],
+};
+
+const swaggerDocs = swaggerJsdoc(swaggerOptions);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 app.use(cors({
     origin: 'http://localhost:3000',

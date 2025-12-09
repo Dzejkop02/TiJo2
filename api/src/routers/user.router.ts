@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { v4 as uuid } from 'uuid';
-import { z, ZodError, ZodIssue } from 'zod'; // <-- Dodano ZodIssue
+import { z, ZodError, ZodIssue } from 'zod';
 import {UserEntity, UserRecord} from '../records/user.record';
 import { ValidationError } from '../utils/errors';
 import { comparePassword, hashPassword } from '../utils/password';
@@ -21,8 +21,36 @@ const passwordChangeSchema = z.object({
 });
 
 /**
- * REJESTRACJA NOWEGO UŻYTKOWNIKA
- * POST /user
+ * @swagger
+ * /api/users:
+ *   post:
+ *     summary: Rejestracja nowego użytkownika
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - fullName
+ *               - password
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               fullName:
+ *                 type: string
+ *                 minLength: 2
+ *               password:
+ *                 type: string
+ *                 minLength: 6
+ *     responses:
+ *       201:
+ *         description: Utworzono użytkownika
+ *       400:
+ *         description: Błąd walidacji lub email zajęty
  */
 userRouter.post('/', async (req, res) => {
     try {
@@ -62,8 +90,33 @@ userRouter.post('/', async (req, res) => {
 });
 
 /**
- * ZMIANA HASŁA PRZEZ UŻYTKOWNIKA
- * PATCH /user/password
+ * @swagger
+ * /api/users/password:
+ *   patch:
+ *     summary: Zmiana hasła
+ *     tags: [Users]
+ *     security:
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - oldPassword
+ *               - newPassword
+ *             properties:
+ *               oldPassword:
+ *                 type: string
+ *               newPassword:
+ *                 type: string
+ *                 minLength: 6
+ *     responses:
+ *       200:
+ *         description: Hasło zmienione pomyślnie
+ *       400:
+ *         description: Stare hasło nieprawidłowe
  */
 userRouter.patch('/password', authenticateUser, async (req, res) => {
     try {
@@ -95,8 +148,23 @@ userRouter.patch('/password', authenticateUser, async (req, res) => {
 });
 
 /**
- * GET /api/users/search?email=...
- * Wyszukuje użytkowników po emailu
+ * @swagger
+ * /api/users/search:
+ *   get:
+ *     summary: Wyszukiwanie użytkowników po emailu
+ *     tags: [Users]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: email
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Fragment adresu email (min. 2 znaki)
+ *     responses:
+ *       200:
+ *         description: Lista znalezionych użytkowników
  */
 userRouter.get('/search', authenticateUser, async (req, res) => {
     const emailQuery = req.query.email as string;

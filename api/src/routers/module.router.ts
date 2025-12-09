@@ -21,8 +21,35 @@ const updateModuleSchema = z.object({
 });
 
 /**
- * POST /api/modules
- * Tworzy nowy moduł (listę "Asana-style").
+ * @swagger
+ * /api/modules:
+ *   post:
+ *     summary: Utwórz nowy moduł w projekcie
+ *     tags: [Modules]
+ *     security:
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - projectId
+ *             properties:
+ *               name:
+ *                 type: string
+ *               projectId:
+ *                 type: string
+ *                 format: uuid
+ *     responses:
+ *       201:
+ *         description: Utworzono moduł
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Module'
  */
 moduleRouter.post('/', async (req, res) => {
     try {
@@ -52,8 +79,22 @@ moduleRouter.post('/', async (req, res) => {
 });
 
 /**
- * GET /api/modules/:moduleId
- * Pobiera jeden moduł.
+ * @swagger
+ * /api/modules/{moduleId}:
+ *   get:
+ *     summary: Pobierz moduł
+ *     tags: [Modules]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: moduleId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Dane modułu
  */
 moduleRouter.get('/:moduleId', async (req, res) => {
     const user = req.user as UserRecord;
@@ -73,8 +114,35 @@ moduleRouter.get('/:moduleId', async (req, res) => {
 });
 
 /**
- * PUT /api/modules/:moduleId
- * Aktualizuje moduł (np. zmienia nazwę).
+ * @swagger
+ * /api/modules/{moduleId}:
+ *   put:
+ *     summary: Aktualizacja modułu
+ *     tags: [Modules]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: moduleId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Zaktualizowano moduł
  */
 moduleRouter.put('/:moduleId', async (req, res) => {
     try {
@@ -108,8 +176,22 @@ moduleRouter.put('/:moduleId', async (req, res) => {
 });
 
 /**
- * DELETE /api/modules/:moduleId
- * Usuwa moduł.
+ * @swagger
+ * /api/modules/{moduleId}:
+ *   delete:
+ *     summary: Usuwanie modułu
+ *     tags: [Modules]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: moduleId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Moduł usunięty
  */
 moduleRouter.delete('/:moduleId', async (req, res) => {
     const user = req.user as UserRecord;

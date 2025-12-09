@@ -24,8 +24,27 @@ const addMemberSchema = z.object({
 });
 
 /**
- * GET /api/projects
- * Zwraca listę projektów dla zalogowanego użytkownika.
+ * @swagger
+ * /api/projects:
+ *   get:
+ *     summary: Pobierz listę projektów użytkownika
+ *     tags: [Projects]
+ *     security:
+ *       - cookieAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista projektów
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ok:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Project'
  */
 projectRouter.get('/', async (req, res) => {
     const user = req.user as UserRecord;
@@ -38,8 +57,30 @@ projectRouter.get('/', async (req, res) => {
 });
 
 /**
- * POST /api/projects
- * Tworzy nowy projekt.
+ * @swagger
+ * /api/projects:
+ *   post:
+ *     summary: Utwórz nowy projekt
+ *     tags: [Projects]
+ *     security:
+ *       - cookieAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 minLength: 3
+ *               description:
+ *                 type: string
+ *     responses:
+ *       201:
+ *         description: Utworzono projekt
  */
 projectRouter.post('/', async (req, res) => {
     try {
@@ -77,8 +118,24 @@ projectRouter.post('/', async (req, res) => {
 });
 
 /**
- * GET /api/projects/:id
- * Zwraca szczegóły jednego projektu ORAZ jego moduły.
+ * @swagger
+ * /api/projects/{id}:
+ *   get:
+ *     summary: Pobierz szczegóły projektu i jego moduły
+ *     tags: [Projects]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Szczegóły projektu
+ *       401:
+ *         description: Brak dostępu
  */
 projectRouter.get('/:id', async (req, res) => {
     const user = req.user as UserRecord;
@@ -107,8 +164,37 @@ projectRouter.get('/:id', async (req, res) => {
 });
 
 /**
- * PUT /api/projects/:id
- * Aktualizuje projekt (nazwa, opis).
+ * @swagger
+ * /api/projects/{id}:
+ *   put:
+ *     summary: Aktualizacja projektu
+ *     tags: [Projects]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Zaktualizowano projekt
+ *       401:
+ *         description: Brak uprawnień (tylko właściciel)
  */
 projectRouter.put('/:id', async (req, res) => {
     try {
@@ -145,8 +231,24 @@ projectRouter.put('/:id', async (req, res) => {
 });
 
 /**
- * DELETE /api/projects/:id
- * Usuwa projekt.
+ * @swagger
+ * /api/projects/{id}:
+ *   delete:
+ *     summary: Usuwanie projektu
+ *     tags: [Projects]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Projekt usunięty
+ *       401:
+ *         description: Brak uprawnień
  */
 projectRouter.delete('/:id', async (req, res) => {
     const user = req.user as UserRecord;
@@ -171,8 +273,22 @@ projectRouter.delete('/:id', async (req, res) => {
 });
 
 /**
- * GET /api/projects/:id/members
- * Zwraca listę członków danego projektu.
+ * @swagger
+ * /api/projects/{id}/members:
+ *   get:
+ *     summary: Pobierz listę członków projektu
+ *     tags: [Projects]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Lista członków
  */
 projectRouter.get('/:id/members', async (req, res) => {
     const user = req.user as UserRecord;
@@ -188,8 +304,38 @@ projectRouter.get('/:id/members', async (req, res) => {
 });
 
 /**
- * POST /api/projects/:id/members
- * Dodaje nowego członka do projektu.
+ * @swagger
+ * /api/projects/{id}/members:
+ *   post:
+ *     summary: Dodaj członka do projektu
+ *     tags: [Projects]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - userId
+ *               - role
+ *             properties:
+ *               userId:
+ *                 type: string
+ *                 format: uuid
+ *               role:
+ *                 type: string
+ *                 enum: [PROJECT_MANAGER, DEVELOPER, STAKEHOLDER]
+ *     responses:
+ *       201:
+ *         description: Dodano członka
  */
 projectRouter.post('/:id/members', async (req, res) => {
     try {
@@ -237,8 +383,27 @@ projectRouter.post('/:id/members', async (req, res) => {
 });
 
 /**
- * DELETE /api/projects/:id/members/:userId
- * Usuwa członka z projektu.
+ * @swagger
+ * /api/projects/{id}/members/{userId}:
+ *   delete:
+ *     summary: Usuń członka z projektu
+ *     tags: [Projects]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Usunięto członka
  */
 projectRouter.delete('/:id/members/:userId', async (req, res) => {
     const user = req.user as UserRecord;

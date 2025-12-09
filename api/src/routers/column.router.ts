@@ -21,8 +21,22 @@ async function checkAccess(user: UserRecord, moduleId: string) {
 }
 
 /**
- * GET /api/modules/:moduleId/columns
- * Pobiera kolumny dla modułu.
+ * @swagger
+ * /api/modules/{moduleId}/columns:
+ *   get:
+ *     summary: Pobierz kolumny Kanban dla modułu
+ *     tags: [Kanban]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: moduleId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Lista kolumn
  */
 columnRouter.get('/modules/:moduleId/columns', async (req, res) => {
     const user = req.user as UserRecord;
@@ -34,8 +48,33 @@ columnRouter.get('/modules/:moduleId/columns', async (req, res) => {
 });
 
 /**
- * POST /api/modules/:moduleId/columns
- * Tworzy nową kolumnę.
+ * @swagger
+ * /api/modules/{moduleId}/columns:
+ *   post:
+ *     summary: Dodaj nową kolumnę
+ *     tags: [Kanban]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: moduleId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Utworzona kolumna
  */
 columnRouter.post('/modules/:moduleId/columns', async (req, res) => {
     const user = req.user as UserRecord;
@@ -57,8 +96,33 @@ columnRouter.post('/modules/:moduleId/columns', async (req, res) => {
 });
 
 /**
- * PUT /api/columns/:id
- * Zmienia nazwę kolumny.
+ * @swagger
+ * /api/columns/{id}:
+ *   put:
+ *     summary: Zmiana nazwy kolumny
+ *     tags: [Kanban]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *             properties:
+ *               name:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Zaktualizowano kolumnę
  */
 columnRouter.put('/columns/:id', async (req, res) => {
     const user = req.user as UserRecord;
@@ -77,8 +141,22 @@ columnRouter.put('/columns/:id', async (req, res) => {
 });
 
 /**
- * DELETE /api/columns/:id
- * Usuwa kolumnę.
+ * @swagger
+ * /api/columns/{id}:
+ *   delete:
+ *     summary: Usuwanie kolumny
+ *     tags: [Kanban]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Kolumna usunięta
  */
 columnRouter.delete('/columns/:id', async (req, res) => {
     const user = req.user as UserRecord;
@@ -94,9 +172,38 @@ columnRouter.delete('/columns/:id', async (req, res) => {
 });
 
 /**
- * PATCH /api/modules/:moduleId/columns/reorder
- * Zmienia kolejność kolumn.
- * Body: { columns: [{ id: '...', orderIndex: 0 }, ...] }
+ * @swagger
+ * /api/modules/{moduleId}/columns/reorder:
+ *   patch:
+ *     summary: Zmień kolejność kolumn
+ *     tags: [Kanban]
+ *     security:
+ *       - cookieAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: moduleId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               columns:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     orderIndex:
+ *                       type: integer
+ *     responses:
+ *       200:
+ *         description: Kolejność zaktualizowana
  */
 columnRouter.patch('/modules/:moduleId/columns/reorder', async (req, res) => {
     const user = req.user as UserRecord;
